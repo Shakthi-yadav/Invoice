@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing - Nandha Gokula</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input[type="text"], input[type="number"], select {
+            width: calc(100% - 10px);
+            padding: 8px;
+            margin: 5px 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .row > div {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .row > div:last-child {
+            margin-right: 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function toggleFields() {
+            const leaseRent = document.getElementById('leaseRent').value;
+            const rentAmountField = document.getElementById('rentAmountField');
+            const leasePlaceholder = document.getElementById('leasePlaceholder');
+            if (leaseRent === 'Rent') {
+                rentAmountField.classList.remove('hidden');
+                leasePlaceholder.classList.add('hidden');
+            } else if (leaseRent === 'Lease') {
+                rentAmountField.classList.add('hidden');
+                leasePlaceholder.classList.remove('hidden');
+            } else {
+                rentAmountField.classList.add('hidden');
+                leasePlaceholder.classList.add('hidden');
+            }
+            calculateTotal();
+        }
+
+        function calculateWaterAmount() {
+            const waterNewReading = parseInt(document.getElementById('waterNewReading').value) || 0;
+            const waterOldReading = parseInt(document.getElementById('waterOldReading').value) || 0;
+            const waterAmount = (waterNewReading - waterOldReading) * 0.40;
+            document.getElementById('waterAmount').value = Math.floor(waterAmount);
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const leaseRent = document.getElementById('leaseRent').value;
+            const rentAmount = leaseRent === 'Rent' ? parseInt(document.getElementById('rentAmount').value) || 0 : 0;
+            const waterAmount = parseInt(document.getElementById('waterAmount').value) || 0;
+            const electricityBill = parseInt(document.getElementById('electricityBill').value) || 0;
+            const cleaningFee = 250;
+            const totalAmount = rentAmount + waterAmount + electricityBill + cleaningFee;
+            document.getElementById('totalAmount').value = totalAmount;
+        }
+
+        function populateMonth() {
+            const monthSelect = document.getElementById('month');
+            const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+            monthSelect.value = currentMonth;
+        }
+
+        function generateInvoice(event) {
+            event.preventDefault();
+            const tenantName = document.getElementById('tenantName').value;
+            const roomNo = document.getElementById('roomNo').value;
+            const month = document.getElementById('month').value;
+            const waterNewReading = document.getElementById('waterNewReading').value;
+            const waterOldReading = document.getElementById('waterOldReading').value;
+            const waterAmount = document.getElementById('waterAmount').value;
+            const electricityBill = document.getElementById('electricityBill').value;
+            const cleaningFee = document.getElementById('cleaningFee').value;
+            const totalAmount = document.getElementById('totalAmount').value;
+            const invoiceWindow = window.open('', '_blank');
+            invoiceWindow.document.write(`
+                <html>
+                <head>
+                    <title>Invoice</title>
+                    <style>
+                        body { font-family: 'Arial', sans-serif; padding: 20px; background-color: #f0f8ff; }
+                        h2 { text-align: center; color: #333; }
+                        p { margin: 5px 0; }
+                        .invoice-container { max-width: 600px; margin: auto; padding: 20px; border-radius: 8px; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+                        .invoice-row p { flex: 1; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <div class="invoice-container">
+                        <h2>Invoice</h2>
+                        <div class="invoice-row">
+                            <p><strong>Tenant Name:</strong> ${tenantName}</p>
+                            <p><strong>Room Number:</strong> ${roomNo}</p>
+                            <p><strong>Month:</strong> ${month}</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p><strong>Water New Reading:</strong> ${waterNewReading}</p>
+                            <p><strong>Water Old Reading:</strong> ${waterOldReading}</p>
+                            <p><strong>Water Amount:</strong> ${waterAmount}</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p><strong>Electricity Bill:</strong> ${electricityBill}</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p><strong>Cleaning Fee:</strong> ${cleaningFee}</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p>------------------------------------------------------------------------</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p><strong>Total Amount:</strong> ${totalAmount}</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            invoiceWindow.document.close();
+        }
+
+        window.onload = populateMonth;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Billing - Nandha Gokula</h1>
+        <form onsubmit="generateInvoice(event)">
+            <label for="month">Select Month:</label>
+            <select id="month" name="month" required>
+                <option value="">Select month</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+            <div class="row">
+                <div>
+                    <label for="tenantName">Tenant Name:</label>
+                    <input type="text" id="tenantName" name="tenantName" placeholder="Enter tenant name" required>
+                </div>
+                <div>
+                    <label for="roomNo">Room Number:</label>
+                    <select id="roomNo" name="roomNo" required>
+                        <option value="">Select room number</option>
+                        <option value="101">101</option>
+                        <option value="102">102</option>
+                        <option value="201">201</option>
+                        <option value="202">202</option>
+                        <option value="301">301</option>
+                        <option value="302">302</option>
+                        <option value="401">401</option>
+                    </select>
+                </div>
+            </div>
+            <label for="leaseRent">Type:</label>
+            <select id="leaseRent" name="leaseRent" onchange="toggleFields()" required>
+                <option value="">Select</option>
+                <option value="Lease">Lease</option>
+                <option value="Rent">Rent</option>
+            </select>
+            <div id="rentAmountField" class="hidden">
+                <label for="rentAmount">Rent Amount:</label>
+                <input type="number" id="rentAmount" name="rentAmount" placeholder="Enter rent amount" oninput="calculateTotal()">
+            </div>
+            <div id="leasePlaceholder" class="hidden">
+                <p>Type: Lease</p>
+            </div>
+            <label for="waterNewReading">Water New Reading:</label>
+            <input type="number" id="waterNewReading" name="waterNewReading" placeholder="Enter new water reading" required oninput="calculateWaterAmount()">
+            <label for="waterOldReading">Water Old Reading:</label>
+            <input type="number" id="waterOldReading" name="waterOldReading" placeholder="Enter old water reading" required oninput="calculateWaterAmount()">
+            <label for="waterAmount">Water Amount:</label>
+            <input type="number" id="waterAmount" name="waterAmount" readonly>
+            <div class="row">
+                <div>
+                    <label for="electricityBill">Electricity Bill:</label>
+                    <input type="number" id="electricityBill" name="electricityBill" placeholder="Enter electricity bill" required oninput="calculateTotal()">
+                </div>
+                <div>
+                    <label for="cleaningFee">Cleaning:</label>
+                    <input type="number" id="cleaningFee" name="cleaningFee" value="250" readonly>
+                </div>
+            </div>
+            <label for="totalAmount">Total Amount:</label>
+            <input type="number" id="totalAmount" name="totalAmount" readonly>
+            <button type="submit">Generate Bill</button>
+        </form>
+        <div id="invoice" class="invoice"></div>
+    </div>
+    <script>
+        function toggleFields() {
+            const leaseRent = document.getElementById('leaseRent').value;
+            const rentAmountField = document.getElementById('rentAmountField');
+            const leasePlaceholder = document.getElementById('leasePlaceholder');
+            if (leaseRent === 'Rent') {
+                rentAmountField.classList.remove('hidden');
+                leasePlaceholder.classList.add('hidden');
+            } else if (leaseRent === 'Lease') {
+                rentAmountField.classList.add('hidden');
+                leasePlaceholder.classList.remove('hidden');
+            } else {
+                rentAmountField.classList.add('hidden');
+                leasePlaceholder.classList.add('hidden');
+            }
+            calculateTotal();
+        }
+    
+        function calculateWaterAmount() {
+            const waterNewReading = parseInt(document.getElementById('waterNewReading').value) || 0;
+            const waterOldReading = parseInt(document.getElementById('waterOldReading').value) || 0;
+            const waterAmount = (waterNewReading - waterOldReading) * 0.40;
+            document.getElementById('waterAmount').value = Math.floor(waterAmount);
+            calculateTotal();
+        }
+    
+        function calculateTotal() {
+            const leaseRent = document.getElementById('leaseRent').value;
+            const rentAmount = leaseRent === 'Rent' ? parseInt(document.getElementById('rentAmount').value) || 0 : 0;
+            const waterAmount = parseInt(document.getElementById('waterAmount').value) || 0;
+            const electricityBill = parseInt(document.getElementById('electricityBill').value) || 0;
+            const cleaningFee = 250;
+            const totalAmount = rentAmount + waterAmount + electricityBill + cleaningFee;
+            document.getElementById('totalAmount').value = totalAmount;
+        }
+    
+        function populateMonth() {
+            const monthSelect = document.getElementById('month');
+            const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+            monthSelect.value = currentMonth;
+        }
+    
+        function generateInvoice(event) {
+            event.preventDefault();
+            const tenantName = document.getElementById('tenantName').value;
+            const roomNo = document.getElementById('roomNo').value;
+            const month = document.getElementById('month').value;
+            const waterNewReading = document.getElementById('waterNewReading').value;
+            const waterOldReading = document.getElementById('waterOldReading').value;
+            const waterAmount = document.getElementById('waterAmount').value;
+            const electricityBill = document.getElementById('electricityBill').value;
+            const cleaningFee = document.getElementById('cleaningFee').value;
+            const totalAmount = document.getElementById('totalAmount').value;
+            const invoiceWindow = window.open('', '_blank');
+            invoiceWindow.document.write(`
+                <html>
+                <head>
+                    <title>Invoice</title>
+                    <style>
+                        body {
+                            font-family: 'Arial', sans-serif;
+                            padding: 20px;
+                            background-color: #d7ecff;
+                        }
+                        h2 {
+                            text-align: center;
+                            color: #333;
+                            font-size: 20px; /* Reduced font size */
+                        }
+                        p {
+                            margin: 5px 0;
+                            font-size: 12px; /* Reduced font size */
+                        }
+                        .invoice-container {
+                            max-width: 600px;
+                            margin: auto;
+                            padding: 20px;
+                            border-radius: 8px;
+                            background-color: #fff;
+                            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                        }
+                        .invoice-row {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 10px;
+                        }
+                        .invoice-row p {
+                            flex: 1;
+                            text-align: left;
+                        }
+                            .invoice-rowb p {
+                            flex: 1;
+                            text-align: center;
+                        }
+                        .invoice-total p {
+                            flex: 1;
+                            text-align: center;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="invoice-container">
+                        <h2>Invoice</h2>
+                        <div class="invoice-rowb">
+                        <p>---------------------------------------------------------------------------------------------------------------</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p><strong>Tenant Name:</strong> ${tenantName}</p>
+                            <p><strong>Room Number:</strong> ${roomNo}</p>
+                            <p><strong>Month:</strong> ${month}</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p><strong>Water New Reading:</strong> ${waterNewReading}</p>
+                            <p><strong>Water Old Reading:</strong> ${waterOldReading}</p>
+                            <p><strong>Water Amount:</strong> ${waterAmount}</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p><strong>Electricity Bill:</strong> ${electricityBill}</p>
+                        </div>
+                        <div class="invoice-row">
+                            <p><strong>Cleaning Fee:</strong> ${cleaningFee}</p>
+                        </div>
+                        <div class="invoice-rowb">
+                            <p>---------------------------------------------------------------------------------------------------------------</p>
+                        </div>
+                        <div class="invoice-total">
+                            <p><strong>Total Amount:</strong> ${totalAmount}</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            invoiceWindow.document.close();
+        }
+    
+        window.onload = populateMonth;
+    </script>
+    </body>
+    </html>
